@@ -1,0 +1,11 @@
+{
+  "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+  "database.dbname": "keycloak",
+  "database.hostname": "postgres",
+  "database.password": "password",
+  "database.user": "keycloak",
+  "name": "users",
+  "plugin.name": "pgoutput",
+  "table.include.list": "public.user_entity",
+  "topic.prefix": "keycloak"
+}

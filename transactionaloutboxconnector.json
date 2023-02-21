@@ -1,0 +1,19 @@
+{
+  "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+  "database.dbname": "todo",
+  "database.hostname": "db",
+  "database.password": "postgres",
+  "database.user": "postgres",
+  "key.converter.schema.registry.url": "http://redpanda:8081",
+  "key.convertor": "org.apache.kafka.connect.storage.StringConverter",
+  "name": "todo-outbox",
+  "plugin.name": "pgoutput",
+  "table.include.list": "public.outbox_entity",
+  "topic.prefix": "todo",
+  "transforms": "outbox",
+  "transforms.outbox.type": "io.debezium.transforms.outbox.EventRouter",
+  "value.converter": "io.debezium.converters.BinaryDataConverter",
+  "value.converter.delegate.converter.type": "org.apache.kafka.connect.json.JsonConverter",
+  "value.converter.delegate.converter.type.schemas.enable": "false",
+  "value.converter.schema.registry.url": "http://redpanda:8081"
+}

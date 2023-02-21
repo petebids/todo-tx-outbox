@@ -1,0 +1,7 @@
+https://ravthiru.medium.com/springboot-oauth2-with-keycloak-for-bearer-client-3a31f608a78
+
+https://openapi-generator.tech/docs/generators/spring/
+
+https://github.com/debezium/debezium-examples/tree/main/tutorial#using-mysql-and-the-avro-message-format
+avro tools - hint for encoding ?
+https://github.com/apache/avro/blob/master/lang/java/tools/src/main/java/org/apache/avro/tool/DataFileReadTool.java

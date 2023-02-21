@@ -1,0 +1,77 @@
+openapi: 3.0.3
+info:
+  title: TodoApi
+  description: TodoApi
+  version: 1.0.0
+servers:
+  - url: 'http://localhost:8090'
+paths:
+  /todos:
+    post:
+      summary: Create a todo
+      operationId: createTodo
+      requestBody:
+        description: create a new todo
+        content:
+          application/json:
+            schema:
+              title: NewTodoRequest
+              type: object
+              properties:
+                details:
+                  type: string
+                  description: Textual description of the todo item. unique for incomplete todo
+      responses:
+        201:
+          description: Successful request
+          content:
+            application/json:
+              schema:
+                title: TodoResource
+                type: object
+                properties:
+                  creator:
+                    type: string
+                    format: uri
+                  details:
+                    type: string
+                    description: Textual description of the todo item. unique for incomplete todo
+                  id:
+                    type: string
+                  completed:
+                    type: boolean
+
+
+
+  /todos/{todoId}/complete:
+    post:
+      summary: Complete an existing todo
+      operationId: completeTodo
+      parameters:
+        - in: path
+          name: todoId
+          schema:
+              type: string
+          required: true
+
+      responses:
+        201:
+          description: Successful request
+          content:
+            application/json:
+              schema:
+                title: TodoResource
+                type: object
+                properties:
+                  creator:
+                    type: string
+                    format: uri
+                  details:
+                    type: string
+                    description: Textual description of the todo item. unique for incomplete todo
+                  id:
+                    type: string
+                  completed:
+                    type: boolean
+
+
