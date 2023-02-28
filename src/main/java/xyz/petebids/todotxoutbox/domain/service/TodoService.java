@@ -1,6 +1,5 @@
 package xyz.petebids.todotxoutbox.domain.service;
 
-import io.confluent.kafka.serializers.KafkaAvroDeserializer;
 import io.confluent.kafka.serializers.KafkaAvroSerializer;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -31,8 +30,6 @@ public class TodoService {
     private final EventPublisher eventPublisher;
     private final TodoMapper todoMapper;
     private final KafkaAvroSerializer serializer;
-
-    private final KafkaAvroDeserializer deserializer;
 
 
     @SneakyThrows
@@ -96,6 +93,7 @@ public class TodoService {
             final TodoEntity saved = todoRepository.save(todoEntity);
 
             final byte[] bytes = serializer.serialize("outbox.event.TODO", todoEvent);
+
             eventPublisher.publish(bytes,
                     "TODO",
                     "TODO_COMPLETED",

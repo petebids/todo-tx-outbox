@@ -32,7 +32,6 @@ public class TodoApiImpl implements TodosApi {
     @Override
     public ResponseEntity<TodoResource> completeTodo(String todoId) {
 
-        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         final Todo todo = todoService.markCompleted(UUID.fromString(todoId));
 

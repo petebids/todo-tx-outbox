@@ -1,6 +1,7 @@
 package xyz.petebids.todotxoutbox.application.kafka;
 
 import io.confluent.kafka.serializers.KafkaAvroDeserializer;
+import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -15,21 +16,12 @@ import xyz.petebids.todotxoutbox.TodoEvent;
 @Slf4j
 public class TodoSearchIndexer {
 
-    private final KafkaAvroDeserializer deserializer;
-
+    @Timed(value = "todo-search-indexer-avro",
+            description = "Measures calls to index new todos for search",
+            longTask = true)
     @SneakyThrows
-    // @KafkaListener(topics = "outbox.event.TODO", groupId = "todo-search-indexer")
-    public void handleTodoEvent(ConsumerRecord<String, GenericData.Record> consumerRecord) {
-        log.info("got {}", consumerRecord);
-
-        final GenericData.Record record = consumerRecord.value();
-        log.info("record {}", record);
-
-
-    }
-
-    @SneakyThrows
-    @KafkaListener(topics = "outbox.event.TODO", groupId = "todo-search-indexer-avro")
+    @KafkaListener(topics = "outbox.event.TODO",
+            groupId = "todo-search-indexer-avro")
     public void handleTodoEventInAvro(ConsumerRecord<String, TodoEvent> consumerRecord) {
         //fixme https://stackoverflow.com/questions/33945383/how-to-convert-from-genericrecord-to-specificrecord-in-avro-for-compatible-schem
 

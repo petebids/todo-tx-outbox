@@ -3,13 +3,13 @@ spring:
       oauth2:
         resourceserver:
             jwt:
-                issuer-uri: http://localhost:4080/auth/realms/mydomain
+                issuer-uri: ${JWT_ISSUER_URI:http://localhost:4080/auth/realms/mydomain}
     datasource:
         driver-class-name: org.postgresql.Driver
-        url: jdbc:postgresql://localhost:5432/todo
+        url: ${JDBC_URL:jdbc:postgresql://localhost:5432/todo}
         hikari:
-            password: postgres
-            username: postgres
+            password: ${DB_PASSWORD:postgres}
+            username: ${DB_USERNAME:postgres}
     jpa:
         hibernate:
             ddl-auto: update
@@ -27,7 +27,9 @@ spring:
                 avro:
                     reader: true
         properties:
-            schema.registry.url: http://localhost:8081
+            schema:
+                registry:
+                    url: ${SCHEMA_REGISTRY_URL:http://localhost:8081}
 
 server:
     port: 9090
