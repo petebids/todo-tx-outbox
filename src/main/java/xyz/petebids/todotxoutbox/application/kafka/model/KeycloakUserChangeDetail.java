@@ -7,10 +7,10 @@ import lombok.Data;
 @Data
 public class KeycloakUserChangeDetail {
 
-    private Payload payload;
+    private Payload<User> payload;
 
     @Data
-    public static class Payload{
+    public static class Payload<User> implements DebeziumChangePayload{
         private User before;
         private User after;
     }
