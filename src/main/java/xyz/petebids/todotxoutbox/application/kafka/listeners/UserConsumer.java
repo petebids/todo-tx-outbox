@@ -1,12 +1,12 @@
-package xyz.petebids.todotxoutbox.application.kafka;
+package xyz.petebids.todotxoutbox.application.kafka.listeners;
 
 import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.stereotype.Component;
 import xyz.petebids.todotxoutbox.UserEvent;
+import xyz.petebids.todotxoutbox.application.kafka.annotation.KafkaComponent;
 import xyz.petebids.todotxoutbox.application.kafka.mapper.KafkaUserMapper;
 import xyz.petebids.todotxoutbox.domain.command.NewExternalUser;
 import xyz.petebids.todotxoutbox.domain.service.UserService;
@@ -14,7 +14,7 @@ import xyz.petebids.todotxoutbox.domain.service.UserService;
 
 @RequiredArgsConstructor
 @Slf4j
-@Component
+@KafkaComponent
 public class UserConsumer {
 
     private final KafkaUserMapper userMapper;
@@ -23,13 +23,13 @@ public class UserConsumer {
 
     @Timed("keycloak.user-consumer")
     @KafkaListener(topics = "users",
-            groupId = "user-replication-consumer"
-
+            groupId = "user-replication-consumer",
+            containerFactory = "avroContainerFactory"
     )
-    public void handleUserUpsert(ConsumerRecord<String, UserEvent> record) {
+    public void handleUserUpsert(ConsumerRecord<String, UserEvent> consumerRecord) {
 
 
-        final UserEvent user = record.value();
+        final UserEvent user = consumerRecord.value();
 
         final NewExternalUser newExternalUser = userMapper.fromAvro(user);
 

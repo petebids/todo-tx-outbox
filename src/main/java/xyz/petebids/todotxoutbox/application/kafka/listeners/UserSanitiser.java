@@ -1,4 +1,4 @@
-package xyz.petebids.todotxoutbox.application.kafka;
+package xyz.petebids.todotxoutbox.application.kafka.listeners;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -8,12 +8,12 @@ import lombok.SneakyThrows;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.stereotype.Component;
 import xyz.petebids.todotxoutbox.UserEvent;
+import xyz.petebids.todotxoutbox.application.kafka.annotation.KafkaComponent;
 import xyz.petebids.todotxoutbox.application.kafka.mapper.KafkaUserMapper;
 import xyz.petebids.todotxoutbox.application.kafka.model.KeycloakUserChangeDetail;
 
-@Component
+@KafkaComponent
 public class UserSanitiser {
 
 
@@ -39,6 +39,7 @@ public class UserSanitiser {
     public void consume(ConsumerRecord<String, String> record) {
 
         final KeycloakUserChangeDetail userChangeDetail;
+
         try {
             userChangeDetail = objectMapper.readValue(record.value(), KeycloakUserChangeDetail.class);
         } catch (JsonProcessingException e) {
@@ -50,6 +51,7 @@ public class UserSanitiser {
         final KeycloakUserChangeDetail.User user = userChangeDetail.getPayload().getAfter();
 
         if (user == null) {
+            // this is a delete action
             userChangeDetail.getPayload().getBefore().getId();
 
         }

@@ -1,4 +1,4 @@
-package xyz.petebids.todotxoutbox.domain.service;
+package xyz.petebids.todotxoutbox.domain.service.impl;
 
 import io.confluent.kafka.serializers.KafkaAvroSerializer;
 import lombok.RequiredArgsConstructor;
@@ -11,9 +11,10 @@ import xyz.petebids.todotxoutbox.TodoEvent;
 import xyz.petebids.todotxoutbox.domain.command.NewTodoCommand;
 import xyz.petebids.todotxoutbox.domain.mapper.TodoMapper;
 import xyz.petebids.todotxoutbox.domain.model.Todo;
+import xyz.petebids.todotxoutbox.domain.service.TodoService;
 import xyz.petebids.todotxoutbox.infrastructure.entity.TodoEntity;
 import xyz.petebids.todotxoutbox.infrastructure.entity.UserEntity;
-import xyz.petebids.todotxoutbox.infrastructure.event.EventPublisher;
+import xyz.petebids.todotxoutbox.infrastructure.event.TransactionalOutboxEventPublisher;
 import xyz.petebids.todotxoutbox.infrastructure.repository.TodoRepository;
 import xyz.petebids.todotxoutbox.infrastructure.repository.UserRepository;
 
@@ -27,15 +28,16 @@ import static xyz.petebids.todotxoutbox.domain.Constants.TodoEventType.TODO_CREA
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class TodoService {
+public class TodoServiceImpl implements TodoService {
 
     private final TodoRepository todoRepository;
     private final UserRepository userRepository;
-    private final EventPublisher eventPublisher;
+    private final TransactionalOutboxEventPublisher eventPublisher;
     private final TodoMapper todoMapper;
     private final KafkaAvroSerializer serializer;
 
 
+    @Override
     @Transactional(isolation = Isolation.SERIALIZABLE)
     @SneakyThrows
     public Todo create(NewTodoCommand command) {
@@ -59,7 +61,6 @@ public class TodoService {
                 .setEventType(TODO_CREATED.name())
                 .build();
 
-
         final byte[] bytes = serializer.serialize(TODO_TOPIC, todoEvent);
 
         eventPublisher.publish(bytes,
@@ -73,6 +74,7 @@ public class TodoService {
 
     }
 
+    @Override
     @Transactional(isolation = Isolation.SERIALIZABLE)
     public Todo markCompleted(UUID id) {
 

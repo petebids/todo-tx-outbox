@@ -4,7 +4,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
 import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 
@@ -32,7 +31,7 @@ public class OutboxEntity {
     @Column(name = "type", updatable = false, nullable = false)
     private String type;
 
-    @Column(name= "payload")
+    @Column(name = "payload")
     private byte[] payload;
 
 

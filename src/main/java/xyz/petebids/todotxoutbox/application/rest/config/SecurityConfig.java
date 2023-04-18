@@ -10,7 +10,7 @@ public class SecurityConfig {
 
     @Bean
     WebSecurityCustomizer webSecurityCustomizer() {
-        return (web) -> web.ignoring().requestMatchers("/actuator/**");
+        return webSecurity -> webSecurity.ignoring().requestMatchers("/actuator/**");
 
     }
 }

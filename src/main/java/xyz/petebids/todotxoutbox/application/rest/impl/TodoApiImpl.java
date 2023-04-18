@@ -32,7 +32,6 @@ public class TodoApiImpl implements TodosApi {
     @Override
     public ResponseEntity<TodoResource> completeTodo(String todoId) {
 
-
         final Todo todo = todoService.markCompleted(UUID.fromString(todoId));
 
         final TodoResource todoResource = resourceMapper.convert(todo);
@@ -43,14 +42,23 @@ public class TodoApiImpl implements TodosApi {
     @Timed("todo.create")
     @Override
     public ResponseEntity<TodoResource> createTodo(NewTodoRequest newTodoRequest) {
+
         final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        final Jwt principal = (Jwt) authentication.getPrincipal();
-        log.info("creating {} for {} with {}", newTodoRequest, principal.getId(), principal.getClaims());
-        final NewTodoCommand command = new NewTodoCommand(newTodoRequest.getDetails(), principal.getSubject());
 
-        final Todo todo = todoService.create(command);
 
-        final TodoResource todoResource = resourceMapper.convert(todo);
-        return new ResponseEntity<>(todoResource, HttpStatus.CREATED);
+        if (authentication.getPrincipal() instanceof Jwt jwt) {
+
+            final NewTodoCommand command = new NewTodoCommand(newTodoRequest.getDetails(), jwt.getSubject());
+
+            final Todo todo = todoService.create(command);
+
+            final TodoResource todoResource = resourceMapper.convert(todo);
+
+            return new ResponseEntity<>(todoResource, HttpStatus.CREATED);
+        }
+        //TODO meaningful logging around service misconfiguration
+
+        throw new RuntimeException();
+
     }
 }

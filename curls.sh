@@ -1,4 +1,4 @@
-export TOKEN=$(curl --request POST 'http://localhost:4080/auth/realms/mydomain/protocol/openid-connect/token' --header 'Content-Type: application/x-www-form-urlencoded' --data-urlencode 'client_id=demoapp' --data-urlencode 'username=testuser' --data-urlencode 'password=password123' --data-urlencode 'grant_type=password' --data-urlencode 'client_secret=dipTcclZBUJVYc7wgkl6ctAGoDBKk7qE' | jq -r .access_token)
+export TOKEN=$(curl --request POST 'http://localhost:4080/auth/realms/mydomain/protocol/openid-connect/token' --header 'Content-Type: application/x-www-form-urlencoded' --data-urlencode 'client_id=demoapp' --data-urlencode 'username=testuser' --data-urlencode 'password=password123' --data-urlencode 'grant_type=password' --data-urlencode 'client_secret=Tz7uUCQveoGt7SciIdZRSoGnv4eyWplz' | jq -r .access_token)
 
 curl -H "Authorization: Bearer $TOKEN " http://localhost:9090/todos -X POST -d '{"details":"get bread"}' -H "Content-type: application/json" -i
 

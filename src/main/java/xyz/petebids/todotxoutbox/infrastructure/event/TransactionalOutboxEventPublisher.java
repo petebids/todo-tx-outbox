@@ -9,7 +9,7 @@ import xyz.petebids.todotxoutbox.infrastructure.repository.OutboxRepository;
 @Slf4j
 @RequiredArgsConstructor
 @Component
-public class TransactionalOutboxEventPublisherImpl implements EventPublisher {
+public class TransactionalOutboxEventPublisher implements EventPublisher {
 
     private final OutboxRepository outboxRepository;
 

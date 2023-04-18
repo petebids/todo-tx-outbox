@@ -16,7 +16,6 @@ public class UserEntity {
     @Id
     @Column(name = "id", updatable = false, nullable = false)
     private UUID id;
-
     private String firstName;
     private String lastName;
     private String email;

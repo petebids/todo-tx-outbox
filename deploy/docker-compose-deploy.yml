@@ -1,5 +1,21 @@
 version: '3.8'
 services:
+  todo-service:
+    image: todo-tx-outbox:0.0.1-SNAPSHOT
+    ports:
+      - 9099:9090
+    networks:
+      - redpanda_network
+      - service2service
+    environment:
+      - JDBC_URL=jdbc:postgresql://db:5432/todo
+      - JWT_ISSUER_URI=http://keycloak:8080/auth/realms/mydomain
+      - KAFKA_BROKER=redpanda:9092
+      - SCHEMA_REGISTRY_URL=http://redpanda:8081
+    depends_on:
+      - db
+      - redpanda
+      - keycloak
   db:
     image: postgres:14.1-alpine
     restart: always
@@ -22,17 +38,10 @@ services:
     container_name: prometheus
     restart: unless-stopped
     volumes:
+
       - ./data/prometheus/config:/etc/prometheus/
     command:
       - '--config.file=/etc/prometheus/prometheus.yaml'
-  kafkacat:
-    image: edenhill/kafkacat:1.5.0
-    container_name: kafkacat
-    entrypoint:
-      - /bin/sh
-      - -c
-      - |
-        while [ 1 -eq 1 ];do sleep 60;done
 
   redpanda:
     image: docker.redpanda.com/vectorized/redpanda:v22.3.11
@@ -135,6 +144,7 @@ services:
     image: quay.io/keycloak/keycloak:legacy
     networks:
       - redpanda_network
+      - service2service
     environment:
       DB_VENDOR: POSTGRES
       DB_ADDR: postgres
@@ -161,6 +171,8 @@ volumes:
     driver: local
   redpanda: null
 networks:
+  service2service:
+
   redpanda_network:
     driver: bridge
 
