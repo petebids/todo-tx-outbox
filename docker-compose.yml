@@ -77,7 +77,7 @@ services:
             - name: local-connect-cluster
               url: http://connect:8083
     ports:
-      - 8080:8080
+      - 8888:8080
     networks:
       - redpanda_network
     depends_on:

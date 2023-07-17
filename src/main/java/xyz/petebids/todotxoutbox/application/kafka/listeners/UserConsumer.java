@@ -20,7 +20,6 @@ public class UserConsumer {
     private final KafkaUserMapper userMapper;
     private final UserService userService;
 
-
     @Timed("keycloak.user-consumer")
     @KafkaListener(topics = "users",
             groupId = "user-replication-consumer",
