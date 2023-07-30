@@ -32,7 +32,7 @@ jobs:
         run: ./mvnw clean package
 
       - name: Build docker image
-        run: docker context list
+        run: cd $GITHUB_WORKSPACE ; ./mvnw clean ; ./mvnw package spring-boot:build-image
 
       - name: Stop containers
         if: always()
