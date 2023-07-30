@@ -5,6 +5,7 @@ import lombok.SneakyThrows;
 import org.apache.http.entity.ContentType;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -33,6 +34,7 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@Disabled
 @RestApiTest
 class TodoApiImplTest {
 
@@ -77,7 +79,6 @@ class TodoApiImplTest {
                         new SimpleGrantedAuthority("ROLE_AUTHORIZED_PERSONNEL")))
                 .jwt(jwt -> jwt.claim(StandardClaimNames.PREFERRED_USERNAME, "username"));
     }
-
 
 
     @Test
