@@ -6,18 +6,21 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 import xyz.petebids.todotxoutbox.application.rest.TodosApi;
 import xyz.petebids.todotxoutbox.application.rest.mapper.ResourceMapper;
 import xyz.petebids.todotxoutbox.application.rest.model.NewTodoRequest;
+import xyz.petebids.todotxoutbox.application.rest.model.QueryPage;
 import xyz.petebids.todotxoutbox.application.rest.model.TodoResource;
 import xyz.petebids.todotxoutbox.domain.command.NewTodoCommand;
 import xyz.petebids.todotxoutbox.domain.model.Todo;
 import xyz.petebids.todotxoutbox.domain.service.TodoService;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -43,22 +46,46 @@ public class TodoApiImpl implements TodosApi {
     @Override
     public ResponseEntity<TodoResource> createTodo(NewTodoRequest newTodoRequest) {
 
-        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        final Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        final NewTodoCommand command = new NewTodoCommand(newTodoRequest.getDetails(), jwt.getSubject());
+
+        final Todo todo = todoService.create(command);
+
+        final TodoResource todoResource = resourceMapper.convert(todo);
+
+        return new ResponseEntity<>(todoResource, HttpStatus.CREATED);
 
 
-        if (authentication.getPrincipal() instanceof Jwt jwt) {
+    }
 
-            final NewTodoCommand command = new NewTodoCommand(newTodoRequest.getDetails(), jwt.getSubject());
+    @Override
+    public ResponseEntity<TodoResource> retrieveTodo(String todoId) {
 
-            final Todo todo = todoService.create(command);
+        Todo todo = todoService.getById(UUID.fromString(todoId))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-            final TodoResource todoResource = resourceMapper.convert(todo);
+        TodoResource todoResource = resourceMapper.convert(todo);
 
-            return new ResponseEntity<>(todoResource, HttpStatus.CREATED);
-        }
-        //TODO meaningful logging around service misconfiguration
+        return new ResponseEntity<>(todoResource, HttpStatus.OK);
+    }
 
-        throw new RuntimeException();
+
+    @Override
+    public ResponseEntity<QueryPage> retrieveTodos(Optional<String> filter) {
+
+        final Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+
+        String processedFilter = filter.map(f -> f + ";" + "userId=='%s'".formatted(jwt.getSubject()))
+                .orElse("userId=='%s'".formatted(jwt.getSubject()));
+
+        List<Todo> userTodos = todoService.getUserTodos(processedFilter);
+
+
+        QueryPage page = resourceMapper.convertPage(userTodos);
+
+        return new ResponseEntity<>(page, HttpStatus.OK);
 
     }
 }

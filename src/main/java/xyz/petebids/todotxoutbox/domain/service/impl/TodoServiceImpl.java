@@ -1,9 +1,11 @@
 package xyz.petebids.todotxoutbox.domain.service.impl;
 
 import io.confluent.kafka.serializers.KafkaAvroSerializer;
+import io.github.perplexhub.rsql.RSQLJPASupport;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,11 +16,11 @@ import xyz.petebids.todotxoutbox.domain.model.Todo;
 import xyz.petebids.todotxoutbox.domain.service.TodoService;
 import xyz.petebids.todotxoutbox.infrastructure.entity.TodoEntity;
 import xyz.petebids.todotxoutbox.infrastructure.entity.UserEntity;
-import xyz.petebids.todotxoutbox.infrastructure.event.TransactionalOutboxEventPublisher;
+import xyz.petebids.todotxoutbox.infrastructure.event.TransactionalOutbox;
 import xyz.petebids.todotxoutbox.infrastructure.repository.TodoRepository;
 import xyz.petebids.todotxoutbox.infrastructure.repository.UserRepository;
 
-import java.util.UUID;
+import java.util.*;
 
 import static xyz.petebids.todotxoutbox.domain.Constants.TODO_AGGREGATE_TYPE;
 import static xyz.petebids.todotxoutbox.domain.Constants.TODO_TOPIC;
@@ -32,7 +34,7 @@ public class TodoServiceImpl implements TodoService {
 
     private final TodoRepository todoRepository;
     private final UserRepository userRepository;
-    private final TransactionalOutboxEventPublisher eventPublisher;
+    private final TransactionalOutbox outbox;
     private final TodoMapper todoMapper;
     private final KafkaAvroSerializer serializer;
 
@@ -63,7 +65,7 @@ public class TodoServiceImpl implements TodoService {
 
         final byte[] bytes = serializer.serialize(TODO_TOPIC, todoEvent);
 
-        eventPublisher.publish(bytes,
+        outbox.append(bytes,
                 TODO_AGGREGATE_TYPE,
                 TODO_CREATED.name(),
                 saved.getId().toString());
@@ -99,12 +101,40 @@ public class TodoServiceImpl implements TodoService {
 
         final byte[] bytes = serializer.serialize(TODO_TOPIC, todoEvent);
 
-        eventPublisher.publish(bytes,
+        outbox.append(bytes,
                 TODO_AGGREGATE_TYPE,
                 TODO_COMPLETED.name(),
                 todoEntity.getId().toString());
 
         return todoMapper.convert(saved);
+    }
+
+    @Override
+    public Optional<Todo> getById(UUID id) {
+        return todoRepository.findById(id)
+                .map(todoMapper::convert);
+
+    }
+
+
+    @Override
+    public List<Todo> getUserTodos(String filter) {
+
+        log.info("filter : {}", filter);
+
+        Map<String, String> propertyPathMapper = new HashMap<>();
+
+        propertyPathMapper.put("userId", "createdBy.id");
+
+        Specification<TodoEntity> specification = RSQLJPASupport.toSpecification(filter, propertyPathMapper);
+
+        log.info("spec : {}", specification);
+
+        return todoRepository.findAll(specification)
+                .stream()
+                .map(todoMapper::convert)
+                .toList();
+
     }
 
 

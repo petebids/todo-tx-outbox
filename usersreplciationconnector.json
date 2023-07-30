@@ -4,7 +4,6 @@
   "database.hostname": "postgres",
   "database.password": "password",
   "database.user": "keycloak",
-  "name": "users",
   "plugin.name": "pgoutput",
   "table.include.list": "public.user_entity",
   "topic.prefix": "keycloak"

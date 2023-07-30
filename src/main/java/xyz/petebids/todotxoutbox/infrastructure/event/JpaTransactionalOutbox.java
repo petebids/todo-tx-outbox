@@ -9,13 +9,13 @@ import xyz.petebids.todotxoutbox.infrastructure.repository.OutboxRepository;
 @Slf4j
 @RequiredArgsConstructor
 @Component
-public class TransactionalOutboxEventPublisher implements EventPublisher {
+public class JpaTransactionalOutbox implements TransactionalOutbox {
 
     private final OutboxRepository outboxRepository;
 
 
     @Override
-    public void publish(byte[] payload, String aggregateType, String eventName, String aggregateId) {
+    public void append(byte[] payload, String aggregateType, String eventName, String aggregateId) {
 
         final OutboxEntity outboxEntity = new OutboxEntity();
 

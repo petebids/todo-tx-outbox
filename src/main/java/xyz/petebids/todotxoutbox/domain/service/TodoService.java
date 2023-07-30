@@ -6,6 +6,8 @@ import org.springframework.transaction.annotation.Transactional;
 import xyz.petebids.todotxoutbox.domain.command.NewTodoCommand;
 import xyz.petebids.todotxoutbox.domain.model.Todo;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface TodoService {
@@ -15,4 +17,8 @@ public interface TodoService {
 
     @Transactional(isolation = Isolation.SERIALIZABLE)
     Todo markCompleted(UUID id);
+
+    Optional<Todo> getById(UUID id);
+
+    List<Todo> getUserTodos(String filter);
 }
