@@ -28,8 +28,11 @@ jobs:
       - name: Start containers
         run: docker-compose -f "docker-compose.yml" up -d --build
 
-      - name: Build & test
-        run: ./mvnw spring-boot:build-image
+      - name: Build jar
+        run: ./mvnw clean package
+
+      - name: Build docker image
+        run: ./mvnw spring-boot:boot-jar
 
       - name: Stop containers
         if: always()
