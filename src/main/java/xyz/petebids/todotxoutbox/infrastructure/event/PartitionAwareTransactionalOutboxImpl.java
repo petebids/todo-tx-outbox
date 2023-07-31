@@ -16,7 +16,7 @@ import java.sql.SQLException;
 public class PartitionAwareTransactionalOutboxImpl implements TransactionalOutbox {
 
     private static final String INSERT_STATEMENT = """
-            insert into outbox ( aggregate_id,aggregate_type,payload,target_partition)
+            insert into outbox_? ( aggregate_id,aggregate_type,payload,target_partition)
             values ( ? , ? ,? ,?)
             """;
 

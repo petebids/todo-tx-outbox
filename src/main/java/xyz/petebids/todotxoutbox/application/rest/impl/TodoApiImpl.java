@@ -59,6 +59,7 @@ public class TodoApiImpl implements TodosApi {
 
     }
 
+    @Timed("todo.retrieveTodo")
     @Override
     public ResponseEntity<TodoResource> retrieveTodo(String todoId) {
 
@@ -71,13 +72,13 @@ public class TodoApiImpl implements TodosApi {
     }
 
 
+    @Timed("todo.retrieveTodos")
     @Override
     public ResponseEntity<QueryPage> retrieveTodos(Optional<String> filter) {
 
         final Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        String processedFilter = filter.map(f -> f + ";" + "userId=='%s'".formatted(jwt.getSubject()))
-                .orElse("userId=='%s'".formatted(jwt.getSubject()));
+        String processedFilter = processFilter(filter, jwt);
 
         List<Todo> userTodos = todoService.getUserTodos(processedFilter);
 
@@ -85,5 +86,12 @@ public class TodoApiImpl implements TodosApi {
 
         return new ResponseEntity<>(page, HttpStatus.OK);
 
+    }
+
+    // TODO add shared with condition
+    private static String processFilter(Optional<String> filter, Jwt jwt) {
+        String processedFilter = filter.map(f -> f + ";" + "userId=='%s'".formatted(jwt.getSubject()))
+                .orElse("userId=='%s'".formatted(jwt.getSubject()));
+        return processedFilter;
     }
 }
