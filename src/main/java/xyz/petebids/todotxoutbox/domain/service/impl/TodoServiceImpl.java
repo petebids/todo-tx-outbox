@@ -32,6 +32,8 @@ import static xyz.petebids.todotxoutbox.domain.Constants.TodoEventType.TODO_CREA
 @Service
 public class TodoServiceImpl implements TodoService {
 
+
+    private final Map<String, String> propertyPathMapper = Collections.singletonMap("userId", "createdBy.id");
     private final TodoRepository todoRepository;
     private final UserRepository userRepository;
     private final TransactionalOutbox outbox;
@@ -120,15 +122,7 @@ public class TodoServiceImpl implements TodoService {
     @Override
     public List<Todo> getUserTodos(String filter) {
 
-        log.info("filter : {}", filter);
-
-        Map<String, String> propertyPathMapper = new HashMap<>();
-
-        propertyPathMapper.put("userId", "createdBy.id");
-
         Specification<TodoEntity> specification = RSQLJPASupport.toSpecification(filter, propertyPathMapper);
-
-        log.info("spec : {}", specification);
 
         return todoRepository.findAll(specification)
                 .stream()

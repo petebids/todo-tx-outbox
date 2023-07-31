@@ -76,12 +76,10 @@ public class TodoApiImpl implements TodosApi {
 
         final Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-
         String processedFilter = filter.map(f -> f + ";" + "userId=='%s'".formatted(jwt.getSubject()))
                 .orElse("userId=='%s'".formatted(jwt.getSubject()));
 
         List<Todo> userTodos = todoService.getUserTodos(processedFilter);
-
 
         QueryPage page = resourceMapper.convertPage(userTodos);
 

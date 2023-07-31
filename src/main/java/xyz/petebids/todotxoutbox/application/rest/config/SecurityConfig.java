@@ -7,7 +7,6 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 @Configuration
 public class SecurityConfig {
 
-
     @Bean
     WebSecurityCustomizer webSecurityCustomizer() {
         return webSecurity -> webSecurity.ignoring().requestMatchers("/actuator/**");

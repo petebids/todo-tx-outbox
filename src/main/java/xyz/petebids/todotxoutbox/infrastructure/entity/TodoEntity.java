@@ -26,7 +26,7 @@ public class TodoEntity {
 
     private Boolean completed;
 
-    @OneToOne
+    @ManyToOne
     private UserEntity createdBy;
 
     @OneToMany
