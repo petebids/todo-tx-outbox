@@ -31,8 +31,6 @@ jobs:
       - name: Build jar
         run: ./mvnw clean package
 
-      - name: Build docker image
-        run: cd $GITHUB_WORKSPACE ; ./mvnw clean ; ./mvnw package spring-boot:build-image
 
       - name: Stop containers
         if: always()

@@ -27,7 +27,6 @@ public class UserConsumer {
     )
     public void handleUserUpsert(ConsumerRecord<String, UserEvent> consumerRecord) {
 
-
         final UserEvent user = consumerRecord.value();
 
         final NewExternalUser newExternalUser = userMapper.fromAvro(user);
