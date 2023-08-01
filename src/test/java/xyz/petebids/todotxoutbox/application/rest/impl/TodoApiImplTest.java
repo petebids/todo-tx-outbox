@@ -5,7 +5,6 @@ import lombok.SneakyThrows;
 import org.apache.http.entity.ContentType;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -16,7 +15,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-import xyz.petebids.todotxoutbox.application.rest.mapper.ResourceMapper;
+import xyz.petebids.todotxoutbox.application.rest.mapper.ResourceMapperImpl;
 import xyz.petebids.todotxoutbox.application.rest.model.NewTodoRequest;
 import xyz.petebids.todotxoutbox.application.rest.model.TodoResource;
 import xyz.petebids.todotxoutbox.domain.model.Todo;
@@ -34,7 +33,6 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@Disabled
 @RestApiTest
 class TodoApiImplTest {
 
@@ -49,7 +47,7 @@ class TodoApiImplTest {
     TodoService todoService;
 
     @MockBean
-    ResourceMapper mapper;
+    ResourceMapperImpl mapper;
 
     @BeforeAll
     void before() {
@@ -89,7 +87,6 @@ class TodoApiImplTest {
 
         mockMvc.perform(
                         post("/todos")
-                                .with(buildValidJwt())
                                 .contentType(ContentType.APPLICATION_JSON.getMimeType())
                                 .content(objectMapper.writeValueAsString(newTodoRequest))
                 )
@@ -109,6 +106,8 @@ class TodoApiImplTest {
 
         when(todoService.create(any())).thenReturn(t);
 
+        when(mapper.convert(any())).thenCallRealMethod();
+
         final MvcResult result = mockMvc.perform(
                         post("/todos")
                                 .with(buildValidJwt())
@@ -121,7 +120,9 @@ class TodoApiImplTest {
 
         verify(todoService, times(1)).create(any());
 
-        final TodoResource todoResource = objectMapper.readValue(result.getResponse().getContentAsString(), TodoResource.class);
+        String contentAsString = result.getResponse().getContentAsString();
+
+        final TodoResource todoResource = objectMapper.readValue(contentAsString, TodoResource.class);
 
         assertNotNull(todoResource.getId());
         assertEquals(newTodoRequest.getDetails(), todoResource.getDetails());
