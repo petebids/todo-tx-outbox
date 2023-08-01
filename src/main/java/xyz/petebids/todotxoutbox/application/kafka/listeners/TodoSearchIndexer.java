@@ -22,7 +22,6 @@ public class TodoSearchIndexer {
             groupId = "todo-search-indexer-avro",
             containerFactory = "avroContainerFactory")
     public void handleTodoEventInAvro(ConsumerRecord<String, TodoEvent> consumerRecord) {
-
         final TodoEvent todoEvent = consumerRecord.value();
         log.info("got {}", todoEvent);
 
