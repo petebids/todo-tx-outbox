@@ -8,6 +8,7 @@ import xyz.petebids.todotxoutbox.domain.model.User;
 import xyz.petebids.todotxoutbox.domain.service.UserService;
 import xyz.petebids.todotxoutbox.infrastructure.entity.UserEntity;
 import xyz.petebids.todotxoutbox.infrastructure.repository.UserRepository;
+import xyz.petebids.todotxoutbox.infrastructure.rest.KeycloakClient;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -18,7 +19,6 @@ public class UserServiceImpl implements UserService {
 
     private final UserMapper userMapper;
     private final UserRepository userRepository;
-
 
     @Override
     public void storeExternalUser(NewExternalUser newExternalUser) {

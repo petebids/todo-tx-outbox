@@ -17,7 +17,7 @@ import java.lang.annotation.*;
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@SpringBootTest(properties = "application.kafka.enabled=false")
+@SpringBootTest(properties = {"application.kafka.enabled=false"})
 @RunWith(SpringRunner.class)
 @AutoConfigureMockMvc
 @ExtendWith(SpringExtension.class)
