@@ -9,5 +9,5 @@ import java.util.UUID;
 public interface UserService {
     void storeExternalUser(NewExternalUser newExternalUser);
 
-    Optional<User> findById(UUID id);
+    Optional<User> findById(UUID id, boolean stronglyConsistentRead);
 }

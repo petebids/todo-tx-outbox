@@ -28,8 +28,9 @@ jobs:
       - name: Start containers
         run: docker-compose -f "docker-compose.yml" up -d --build
 
-      - name: Build jar
-        run: ./mvnw clean package
+      - name: Test
+        run: ./mvnw clean test -Pci
+
 
       - name: Stop containers
         if: always()

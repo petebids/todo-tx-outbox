@@ -5,13 +5,14 @@ import io.github.perplexhub.rsql.RSQLJPASupport;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import xyz.petebids.todotxoutbox.TodoEvent;
 import xyz.petebids.todotxoutbox.domain.command.NewTodoCommand;
 import xyz.petebids.todotxoutbox.domain.mapper.TodoMapper;
+import xyz.petebids.todotxoutbox.domain.model.Page;
 import xyz.petebids.todotxoutbox.domain.model.Todo;
 import xyz.petebids.todotxoutbox.domain.service.TodoService;
 import xyz.petebids.todotxoutbox.infrastructure.entity.TodoEntity;
@@ -31,7 +32,6 @@ import static xyz.petebids.todotxoutbox.domain.Constants.TodoEventType.TODO_CREA
 @RequiredArgsConstructor
 @Service
 public class TodoServiceImpl implements TodoService {
-
 
     private final Map<String, String> propertyPathMapper = Collections.singletonMap("userId", "createdBy.id");
     private final TodoRepository todoRepository;
@@ -91,7 +91,7 @@ public class TodoServiceImpl implements TodoService {
 
         final TodoEntity todoEntity = todoRepository.findById(id).orElseThrow(RuntimeException::new);
 
-        if (Boolean.TRUE.equals(todoEntity.getCompleted())) {
+        if (todoEntity.getCompleted()) {
             // already marked as complete. no need to update the db nor emit an event, but for the sake of idempotence, we return the entity
             return todoMapper.convert(todoEntity);
         }
@@ -127,15 +127,14 @@ public class TodoServiceImpl implements TodoService {
 
 
     @Override
-    public List<Todo> getUserTodos(String filter) {
+    public Page<Todo> getUserTodos(String filter) {
 
-        Specification<TodoEntity> specification = RSQLJPASupport.toSpecification(filter, propertyPathMapper);
-
-        return todoRepository.findAll(specification)
+        List<Todo> todos = todoRepository.findAll(RSQLJPASupport.toSpecification(filter, propertyPathMapper), Pageable.ofSize(100))
                 .stream()
                 .map(todoMapper::convert)
                 .toList();
 
+        return new Page<>(todos, null);
     }
 
 

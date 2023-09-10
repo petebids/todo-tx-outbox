@@ -4,6 +4,7 @@ import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -17,12 +18,12 @@ import java.lang.annotation.*;
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@SpringBootTest(properties = "application.kafka.enabled=false")
+@SpringBootTest(properties = {"application.kafka.enabled=false"})
 @RunWith(SpringRunner.class)
 @AutoConfigureMockMvc
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@EnableAutoConfiguration(exclude = {KafkaAutoConfiguration.class})
+@EnableAutoConfiguration(exclude = {KafkaAutoConfiguration.class,JpaRepositoriesAutoConfiguration.class})
 public @interface RestApiTest {
 }
