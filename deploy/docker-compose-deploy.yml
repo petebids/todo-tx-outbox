@@ -22,8 +22,8 @@ services:
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
-    ports:
-      - '5432:5432'
+   # ports:
+      #- '5432:5432'
     volumes:
       - db:/var/lib/postgresql/data
     networks:
@@ -32,16 +32,6 @@ services:
       - "postgres"
       - "-c"
       - "wal_level=logical"
-  prometheus:
-    image: prom/prometheus:v2.35.0
-    network_mode: host
-    container_name: prometheus
-    restart: unless-stopped
-    volumes:
-
-      - ./data/prometheus/config:/etc/prometheus/
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yaml'
 
   redpanda:
     image: docker.redpanda.com/vectorized/redpanda:v22.3.11

@@ -156,6 +156,13 @@ services:
       resources:
         limits:
           cpus: '1'
+
+  redis:
+    image: "redis:latest"
+    ports:
+      - "6379:6379"
+
+
 volumes:
   postgres_data:
     driver: local

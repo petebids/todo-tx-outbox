@@ -16,10 +16,10 @@ import xyz.petebids.todotxoutbox.application.rest.model.NewTodoRequest;
 import xyz.petebids.todotxoutbox.application.rest.model.QueryPage;
 import xyz.petebids.todotxoutbox.application.rest.model.TodoResource;
 import xyz.petebids.todotxoutbox.domain.command.NewTodoCommand;
+import xyz.petebids.todotxoutbox.domain.model.Page;
 import xyz.petebids.todotxoutbox.domain.model.Todo;
 import xyz.petebids.todotxoutbox.domain.service.TodoService;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -78,9 +78,9 @@ public class TodoApiImpl implements TodosApi {
 
         final Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        String processedFilter = processFilter(filter, jwt);
+        String processedFilter = processFilter(filter, jwt.getSubject());
 
-        List<Todo> userTodos = todoService.getUserTodos(processedFilter);
+        Page<Todo> userTodos = todoService.getUserTodos(processedFilter);
 
         QueryPage page = resourceMapper.convertPage(userTodos);
 
@@ -89,9 +89,8 @@ public class TodoApiImpl implements TodosApi {
     }
 
     // TODO add shared with condition
-    private static String processFilter(Optional<String> filter, Jwt jwt) {
-        String processedFilter = filter.map(f -> f + ";" + "userId=='%s'".formatted(jwt.getSubject()))
-                .orElse("userId=='%s'".formatted(jwt.getSubject()));
-        return processedFilter;
+    private static String processFilter(Optional<String> filter, String subject) {
+        return filter.map(f -> f + ";" + "userId=='%s'".formatted(subject))
+                .orElse("userId=='%s'".formatted(subject));
     }
 }

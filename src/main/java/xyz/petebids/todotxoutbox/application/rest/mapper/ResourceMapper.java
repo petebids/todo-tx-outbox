@@ -3,6 +3,7 @@ package xyz.petebids.todotxoutbox.application.rest.mapper;
 import org.mapstruct.Mapper;
 import xyz.petebids.todotxoutbox.application.rest.model.QueryPage;
 import xyz.petebids.todotxoutbox.application.rest.model.TodoResource;
+import xyz.petebids.todotxoutbox.domain.model.Page;
 import xyz.petebids.todotxoutbox.domain.model.Todo;
 
 import java.net.URI;
@@ -13,7 +14,7 @@ public interface ResourceMapper {
 
     TodoResource convert(Todo todo);
 
-    default QueryPage convertPage(List<Todo> todos) {
+    default QueryPage convertPage(Page<Todo> todos) {
 
         if (todos == null) {
             throw new NullPointerException();
@@ -21,7 +22,9 @@ public interface ResourceMapper {
 
         QueryPage page = new QueryPage();
 
-        List<TodoResource> todoResources = todos.stream()
+        List<TodoResource> todoResources = todos
+                .items()
+                .stream()
                 .map(this::convert)
                 .toList();
 
