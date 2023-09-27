@@ -251,10 +251,6 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <docker>
-                        <host>unix:///Users/pete/.rd/docker.sock </host>
-                        <tlsVerify>false</tlsVerify>
-                    </docker>
                 </configuration>
             </plugin>
             <plugin>

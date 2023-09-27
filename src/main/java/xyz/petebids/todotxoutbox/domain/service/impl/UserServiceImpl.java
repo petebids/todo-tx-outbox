@@ -22,7 +22,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void storeExternalUser(NewExternalUser newExternalUser) {
-
         final UserEntity userEntity = userMapper.convert(newExternalUser);
         userRepository.save(userEntity);
 

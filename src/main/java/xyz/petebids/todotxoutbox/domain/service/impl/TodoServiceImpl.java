@@ -46,9 +46,16 @@ public class TodoServiceImpl implements TodoService {
     @SneakyThrows
     public Todo create(NewTodoCommand command) {
 
+        UUID userId = UUID.fromString(command.creator());
 
-        final UserEntity creator = userRepository.findById(UUID.fromString(command.creator()))
-                .orElseThrow(() -> new RuntimeException("user not found"));
+        final UserEntity creator = userRepository.findById(userId)
+                .orElseGet(() -> {
+                    // if the user projection is not up-to-date, create an empty user using the subject claim from the JWT
+                    UserEntity userEntity = new UserEntity();
+                    userEntity.setId(userId);
+                    return userEntity;
+                });
+
 
         final TodoEntity todo = new TodoEntity();
 

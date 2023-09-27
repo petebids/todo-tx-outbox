@@ -21,7 +21,6 @@ public class OutboxConfiguration {
 
     @Bean
     public KafkaAvroDeserializer kafkaAvroDeserializer(SchemaRegistryClient schemaRegistryClient) {
-
         return new KafkaAvroDeserializer(schemaRegistryClient);
     }
 
