@@ -1,15 +1,21 @@
 version: '3.8'
 services:
   todo-service:
+#    deploy:
+#      resources:
+#        limits:
+#          cpus: '.25'
+#          memory: '500m'
+
     image: todo-tx-outbox:0.0.1-SNAPSHOT
     ports:
-      - 9099:9090
+      - 8989:8080
     networks:
       - redpanda_network
       - service2service
     environment:
-      - JDBC_URL=jdbc:postgresql://db:5432/todo
-      - JWT_ISSUER_URI=http://keycloak:8080/auth/realms/mydomain
+      - JDBC_URL=jdbc:postgresql://db:5432/
+      - JWT_ISSUER_URI=http://deploy-keycloak-1:8080/auth/realms/mydomain
       - KAFKA_BROKER=redpanda:9092
       - SCHEMA_REGISTRY_URL=http://redpanda:8081
     depends_on:
@@ -37,11 +43,29 @@ services:
     network_mode: host
     container_name: prometheus
     restart: unless-stopped
+    ports:
+      - "9090:9090"
     volumes:
 
       - ./data/prometheus/config:/etc/prometheus/
     command:
       - '--config.file=/etc/prometheus/prometheus.yaml'
+
+  grafana:
+    image: grafana/grafana
+    user: '472'
+    restart: always
+    environment:
+      GF_INSTALL_PLUGINS: 'grafana-clock-panel,grafana-simple-json-datasource'
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning/:/etc/grafana/provisioning/
+    env_file:
+      - ./grafana/config.monitoring
+    ports:
+      - 3000:3000
+    depends_on:
+      - prometheus
 
   redpanda:
     image: docker.redpanda.com/vectorized/redpanda:v22.3.11
@@ -170,6 +194,7 @@ volumes:
   db:
     driver: local
   redpanda: null
+  grafana_data: {}
 networks:
   service2service:
 

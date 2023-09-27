@@ -20,5 +20,5 @@ public interface TodoService {
 
     Optional<Todo> getById(UUID id);
 
-    List<Todo> getUserTodos(String filter);
+    List<Todo> getUserTodos(String filter, String sort);
 }

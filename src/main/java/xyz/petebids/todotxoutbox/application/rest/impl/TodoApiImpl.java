@@ -74,13 +74,13 @@ public class TodoApiImpl implements TodosApi {
 
     @Timed("todo.retrieveTodos")
     @Override
-    public ResponseEntity<QueryPage> retrieveTodos(Optional<String> filter) {
+    public ResponseEntity<QueryPage> retrieveTodos(Optional<String> filterOpt, Optional<String> sortOpt) {
 
         final Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        final String processedFilter = processFilter(filterOpt, jwt);
+        final String sort = sortOpt.orElse("");
 
-        String processedFilter = processFilter(filter, jwt);
-
-        List<Todo> userTodos = todoService.getUserTodos(processedFilter);
+        List<Todo> userTodos = todoService.getUserTodos(processedFilter, sort);
 
         QueryPage page = resourceMapper.convertPage(userTodos);
 

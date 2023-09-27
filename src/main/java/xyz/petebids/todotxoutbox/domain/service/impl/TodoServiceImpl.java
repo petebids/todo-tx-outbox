@@ -120,11 +120,13 @@ public class TodoServiceImpl implements TodoService {
 
 
     @Override
-    public List<Todo> getUserTodos(String filter) {
+    public List<Todo> getUserTodos(final String filter, final String sort) {
 
         Specification<TodoEntity> specification = RSQLJPASupport.toSpecification(filter, propertyPathMapper);
 
-        return todoRepository.findAll(specification)
+        Specification<TodoEntity> andSort = specification.and(RSQLJPASupport.toSort(sort));
+
+        return todoRepository.findAll(andSort)
                 .stream()
                 .map(todoMapper::convert)
                 .toList();

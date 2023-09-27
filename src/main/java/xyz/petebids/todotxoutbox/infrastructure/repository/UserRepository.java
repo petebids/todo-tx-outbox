@@ -8,6 +8,5 @@ import java.util.UUID;
 
 public interface UserRepository extends CrudRepository<UserEntity, String> {
 
-
     Optional<UserEntity> findById(UUID id);
 }

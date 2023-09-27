@@ -10,14 +10,16 @@ spring:
         hikari:
             password: ${DB_PASSWORD:postgres}
             username: ${DB_USERNAME:postgres}
+            maximum-pool-size: 100
+            minimum-idle: 100
     jpa:
         hibernate:
             ddl-auto: update
-        show-sql: true
+        show-sql: false
         properties:
             hibernate:
                 format_sql: false
-                generate_statistics: true
+                generate_statistics: false
     kafka:
         bootstrap-servers: ${KAFKA_BROKER:localhost:9092}
         consumer:
@@ -34,8 +36,6 @@ spring:
                 registry:
                     url: ${SCHEMA_REGISTRY_URL:http://localhost:8081}
 
-server:
-    port: 9090
 
 dependencies:
     users:
@@ -45,14 +45,14 @@ dependencies:
 
 log:
     level:
-        org.springframework: DEBUG
+        org.springframework.web: DEBUG
 
 management:
     endpoints:
         web:
             exposure:
-                include: health,info,prometheus
+                include: health,info,prometheus,mappings
 
 application:
     kafka:
-        enabled: true
+        enabled: false

@@ -1,6 +1,4 @@
 {
-  "name": "todo-outbox",
-  "config": {
     "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
     "database.dbname": "todo",
     "database.hostname": "db",
@@ -21,4 +19,3 @@
     "heartbeat.interval.ms": "1000",
     "heartbeat.action.query": "SELECT pg_logical_emit_message(false, 'heartbeat', now()::varchar)"
   }
-}
