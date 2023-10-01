@@ -1,0 +1,168 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:14.1-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - '5432:5432'
+    volumes:
+      - db:/var/lib/postgresql/data
+
+      - ./sql/create_tables.sql:/docker-entrypoint-initdb.d/create_tables.sql
+    networks:
+      - redpanda_network
+    command:
+      - "postgres"
+      - "-c"
+      - "wal_level=logical"
+  prometheus:
+    image: prom/prometheus:v2.35.0
+    network_mode: host
+    container_name: prometheus
+    restart: unless-stopped
+    volumes:
+      - ./data/prometheus/config:/etc/prometheus/
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yaml'
+  kafkacat:
+    image: edenhill/kafkacat:1.5.0
+    container_name: kafkacat
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        while [ 1 -eq 1 ];do sleep 60;done
+
+  redpanda:
+    image: docker.redpanda.com/vectorized/redpanda:v22.3.11
+    command:
+      - redpanda start
+      - --smp 1
+      - --overprovisioned
+      - --kafka-addr PLAINTEXT://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092
+      - --advertise-kafka-addr PLAINTEXT://redpanda:29092,OUTSIDE://localhost:9092
+      - --pandaproxy-addr 0.0.0.0:8082
+      - --advertise-pandaproxy-addr localhost:8082
+    ports:
+      - 8081:8081
+      - 8082:8082
+      - 9092:9092
+      - 9644:9644
+      - 29092:29092
+    volumes:
+      - redpanda:/var/lib/redpanda/data
+    networks:
+      - redpanda_network
+
+  console:
+    image: docker.redpanda.com/vectorized/console:v2.1.1
+    entrypoint: /bin/sh
+    command: -c "echo \"$$CONSOLE_CONFIG_FILE\" > /tmp/config.yml; /app/console"
+    environment:
+      CONFIG_FILEPATH: /tmp/config.yml
+      CONSOLE_CONFIG_FILE: |
+        kafka:
+          brokers: ["redpanda:29092"]
+          schemaRegistry:
+            enabled: true
+            urls: ["http://redpanda:8081"]
+        redpanda:
+          adminApi:
+            enabled: true
+            urls: ["http://redpanda:9644"]
+        connect:
+          enabled: true
+          clusters:
+            - name: local-connect-cluster
+              url: http://connect:8083
+    ports:
+      - 8888:8080
+    networks:
+      - redpanda_network
+    depends_on:
+      - redpanda
+
+
+  connect:
+    image: docker.redpanda.com/vectorized/connectors:1.0.0-dev-dff1c57
+    hostname: connect
+    container_name: connect
+    networks:
+      - redpanda_network
+    #platform: 'linux/amd64'
+    depends_on:
+      - redpanda
+    ports:
+      - "8083:8083"
+    environment:
+      CONNECT_CONFIGURATION: |
+        key.converter=org.apache.kafka.connect.storage.StringConverter
+        value.converter=org.apache.kafka.connect.json.JsonConverter
+        group.id=connectors-cluster
+        offset.storage.topic=_internal_connectors_offsets
+        config.storage.topic=_internal_connectors_configs
+        status.storage.topic=_internal_connectors_status
+        config.storage.replication.factor=-1
+        offset.storage.replication.factor=-1
+        status.storage.replication.factor=-1
+        offset.flush.interval.ms=1000
+        producer.linger.ms=50
+        producer.batch.size=131072
+      CONNECT_BOOTSTRAP_SERVERS: redpanda:29092
+      CONNECT_GC_LOG_ENABLED: "false"
+      CONNECT_HEAP_OPTS: -Xms512M -Xmx512M
+      CONNECT_LOG_LEVEL: info
+
+  postgres:
+    image: postgres
+    command:
+      - "postgres"
+      - "-c"
+      - "wal_level=logical"
+    ports:
+      - '6432:5432'
+    networks:
+      - redpanda_network
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: password
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:legacy
+    networks:
+      - redpanda_network
+    environment:
+      DB_VENDOR: POSTGRES
+      DB_ADDR: postgres
+      DB_DATABASE: keycloak
+      DB_USER: keycloak
+      DB_SCHEMA: public
+      DB_PASSWORD: password
+      KEYCLOAK_USER: admin
+      KEYCLOAK_PASSWORD: Pa55w0rd
+      # Uncomment the line below if you want to specify JDBC parameters. The parameter below is just an example, and it shouldn't be used in production without knowledge. It is highly recommended that you read the PostgreSQL JDBC driver documentation in order to use it.
+      #JDBC_PARAMS: "ssl=true"
+    ports:
+      - 4080:8080
+    depends_on:
+      - postgres
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+volumes:
+  postgres_data:
+    driver: local
+  db:
+    driver: local
+  redpanda: null
+networks:
+  redpanda_network:
+    driver: bridge
+

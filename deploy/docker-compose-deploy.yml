@@ -7,7 +7,7 @@ services:
 #          cpus: '.25'
 #          memory: '500m'
 
-    image: todo-tx-outbox:0.0.1-SNAPSHOT
+    image: ghcr.io/petebids/todo-tx-outbox
     ports:
       - 8989:8080
     networks:
