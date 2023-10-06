@@ -11,6 +11,8 @@ kubectl --namespace platform port-forward chi-signoz-clickhouse-cluster-0-0-0 81
 
 k6 run  -vu 30 -d  30s script.js
 
+# from otel/
+wget https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/latest/download/opentelemetry-javaagent.jar
 
 # expose ui
 export POD_NAME=$(kubectl get pods --namespace platform -l "app.kubernetes.io/name=signoz,app.kubernetes.io/instance=signoz,app.kubernetes.io/component=frontend" -o jsonpath="{.items[0].metadata.name}")
